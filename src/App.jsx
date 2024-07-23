@@ -155,7 +155,7 @@ function App() {
 
           <div className="w-full flex items-center justify-center bg-zinc-900 h-[200px] md:h-[450px] rounded-lg">
           {isUserVideo && remoteStream ? 
-            <video ref={remoteVideoRef} autoPlay playsInline muted className='w-full h-full object-cover rounded-lg'></video>
+            <video ref={remoteVideoRef} autoPlay playsInline className='w-full h-full object-cover rounded-lg'></video>
             :
             <div className="flex flex-col items-center justify-center">
               <i className="fa fa-user-circle text-slate-700 text-5xl md:text-6xl object-cover" aria-hidden="true"></i>
