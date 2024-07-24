@@ -5,7 +5,7 @@ import { io } from 'socket.io-client'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 
 function App() {
-  const peer = useMemo(() => new Peer({ host: import.meta.env.VITE_APP_BACKEND_PEER_URL, port: import.meta.env.VITE_APP_BACKEND_PEER_PORT, path: '/', secure: true }), [])
+  const peer = useMemo(() => new Peer({ host: import.meta.env.VITE_APP_BACKEND_PEER_URL, port: import.meta.env.VITE_APP_BACKEND_PEER_PORT, path: '/', secure: true, config: { iceServers: [ { urls: 'stun:stun.l.google.com:19302' }, ] } }), [])
   const socket = useMemo(() => io(import.meta.env.VITE_APP_BACKEND_SOCKET_URL), []) 
   const uid = new ShortUniqueId({ length: 5 })
   const [myId, setMyId] = useState(uid.rnd())
@@ -60,7 +60,7 @@ function App() {
   useEffect(() => {
     console.log('setting peer')
     peer.on('open', id => {
-      console.log('peer id', id)
+      console.log('peer : done')
       setPeerId(id)
     })
   }, [peer])
@@ -90,6 +90,8 @@ function App() {
   // join a room in their own rooms
   useEffect(() => {
       socket.emit('joinId', { id: myId })
+      console.log('setting socket')
+      console.log('socket : done')
   }, [socket, myId])
 
   // start the video
