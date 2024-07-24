@@ -5,7 +5,7 @@ import { io } from 'socket.io-client'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 
 function App() {
-  const peer = useMemo(() => new Peer(), [])
+  const peer = useMemo(() => new Peer({ host: import.meta.env.VITE_APP_BACKEND_PEER_URL, port: import.meta.env.VITE_APP_BACKEND_PEER_PORT, path: '/', secure: true }), [])
   const socket = useMemo(() => io(import.meta.env.VITE_APP_BACKEND_SOCKET_URL), []) 
   const uid = new ShortUniqueId({ length: 5 })
   const [myId, setMyId] = useState(uid.rnd())
@@ -82,7 +82,6 @@ function App() {
   // handling incoming call
   useEffect(() => {
     peer.on('call', handleCall)
-
     return () => {
       peer.off('call', handleCall)
     }
