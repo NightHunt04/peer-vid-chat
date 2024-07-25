@@ -7,6 +7,7 @@ import { CopyToClipboard } from 'react-copy-to-clipboard'
 function App() {
   const peer = useMemo(() => new Peer({ host: import.meta.env.VITE_APP_BACKEND_PEER_URL, port: import.meta.env.VITE_APP_BACKEND_PEER_PORT, path: '/', secure: true, config: { iceServers: [ { urls: 'stun:stun.l.google.com:19302' }, ] } }), [])
   const socket = useMemo(() => io(import.meta.env.VITE_APP_BACKEND_SOCKET_URL), []) 
+
   const uid = new ShortUniqueId({ length: 5 })
   const [myId, setMyId] = useState(uid.rnd())
   const [remoteId, setRemoteId] = useState('') // the user input id 
@@ -19,6 +20,9 @@ function App() {
   const [isUserVideo, setIsUserVideo] = useState(false)
   const [isCopied, setIsCopied] = useState(false)
   const [decline, setDecline] = useState(false)
+
+  const [socketServerReady, setSocketServerReady] = useState(false)
+  const [peerServerReady, setPeerServerReady] = useState(false)
 
   const [myStream, setMyStream] = useState()
   const [remoteStream, setRemoteStream] = useState()
@@ -61,6 +65,7 @@ function App() {
     console.log('setting peer')
     peer.on('open', id => {
       console.log('peer : done')
+      setPeerServerReady(true)
       setPeerId(id)
     })
   }, [peer])
@@ -89,9 +94,14 @@ function App() {
 
   // join a room in their own rooms
   useEffect(() => {
-      socket.emit('joinId', { id: myId })
-      console.log('setting socket')
-      console.log('socket : done')
+    if(!socket) return
+
+    if(socket.connected)
+      setSocketServerReady(true)
+
+    socket.emit('joinId', { id: myId })
+    console.log('setting socket')
+    console.log('socket : done')
   }, [socket, myId])
 
   // start the video
@@ -143,6 +153,14 @@ function App() {
 
   return (
     <div className="relative w-full min-h-screen flex flex-col items-center justify-center text-sm md:text-md bg-zinc-950 text-white font-poppins">
+      {!peerServerReady && !socketServerReady &&
+        <div className='absolute top-10 px-4 py-2 md:px-6 md:py-3 rounded-lg border-[1px] border-red-800 bg-[#232323b3]'>
+          <div className='flex items-center justify-center gap-2'>
+            <p className='text-xs md:text-sm'>Setting up servers, wait for a while</p>
+            <i className="fa fa-cog text-[#ddd] animate-spin" aria-hidden="true"></i>          
+          </div>
+        </div>} 
+
       <div className="flex flex-col items-center justify-center pt-5 md:pt-0">
         <h1 className="text-xl md:text-4xl">Video<span className="font-bold">Chat</span></h1>
         <p className="text-[#ddd] text-center w-[80%] md:w-full text-xs md:text-sm">Connect, talk, and brain rot by not keeping silence. ~jeet</p>
